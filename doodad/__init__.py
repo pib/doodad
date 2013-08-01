@@ -1,52 +1,53 @@
-class WithChildren(object):
-    """
-    >>> class BadChild(WithChildren):
-    ...     pass
-    ...
-    >>> c = BadChild()
-    >>> c.to_dict()
-    Traceback (most recent call last):
-    ...
-    AssertionError: subclasses must override _child_type
-    """
-
-    _child_type = None
-
-    def __init__(self, *children):
-        for child in children:
-            assert isinstance(child, self._child_type)
-        self._children = children
-
-    def to_dict(self):
-        assert self._child_type, 'subclasses must override _child_type'
-        return {self._children_key: [c.to_dict() for c in self._children]}
-
-    @property
-    def _children_key(self):
-        return self._child_type.__name__.lower() + 's'
+from .util import classtree_map
 
 
 class Doodad(object):
     def to_dict(self):
-        return {'type': 'Doodad'}
+        return {'type': self.type_name()}
+
+    @classmethod
+    def type_name(cls):
+        return '{}.{}'.format(cls.__module__, cls.__name__)
+
+    @classmethod
+    def from_dict(cls, source):
+        type_name = source['type']
+        if type_name == cls.type_name():
+            return cls()
+        else:
+            classmap = classtree_map(Doodad)
+            return classmap[type_name].from_dict(source)
 
 
-class Column(WithChildren):
-    _child_type = Doodad
-
-    def __init__(self, *children, **kwargs):
-        super(Column, self).__init__(*children)
-        self.rows = kwargs.get('rows', [])
+class Container(Doodad):
+    def __init__(self, *children):
+        for child in children:
+            assert isinstance(child, Doodad)
+        self._children = children
 
     def to_dict(self):
-        d = super(Column, self).to_dict()
-        d['rows'] = [r.to_dict() for r in self.rows]
-        return d
+        doodad_dict = super(Container, self).to_dict()
+        doodad_dict.update({'children': [c.to_dict() for c in self._children]})
+        return doodad_dict
+
+    @classmethod
+    def from_dict(cls, source):
+        classmap = classtree_map(Doodad)
+
+        source = source.copy()
+        children = [classmap[child['type']].from_dict(child)
+                    for child in source.get('children', [])]
+
+        return classmap[source['type']](*children)
 
 
-class Row(WithChildren):
-    _child_type = Column
+class Column(Container):
+    pass
 
 
-class Layout(WithChildren):
-    _child_type = Row
+class Row(Container):
+    pass
+
+
+class Layout(Container):
+    pass

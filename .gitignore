@@ -6,3 +6,4 @@ doodad.egg-info
 cover
 .run_nose
 build
+dist

@@ -5,3 +5,4 @@ doodad.egg-info
 .coverage
 cover
 .run_nose
+build

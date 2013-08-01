@@ -1,0 +1,7 @@
+*.pyc
+doodad.egg-info
+*.egg
+.pyflymakerc*
+.coverage
+cover
+.run_nose

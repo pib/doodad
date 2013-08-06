@@ -3,7 +3,7 @@ from doodad import Column, Doodad, Row
 from unittest import TestCase
 
 
-class AttrTest(TestCase):
+class ToStrTest(TestCase):
     def test_str_empty(self):
         self.assertEqual(str(Row()), '<div class="row"></div>')
         self.assertEqual(str(Column()), '<div class="columns"></div>')

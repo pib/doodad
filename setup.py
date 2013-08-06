@@ -10,6 +10,10 @@ setup(
 
     dependency_links=dependency_links,
 
-    tests_require=['nose==1.3.0', 'nose-machineout==0.4-rc1'],
+    extras_require={
+        'Pyramid': ['pyramid>=1.4']
+    },
+
+    tests_require=['nose==1.3.0', 'nose-machineout==0.4-rc1', 'pyramid>=1.4'],
     test_suite='nose.collector',
 )
